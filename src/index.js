@@ -98,7 +98,7 @@ function generateQRCodeUrl(clientUrl) {
 
 // Generate a unique URL for the client
 function generateUniqueUrl(clientId) {
-    return `https://yourdomain.com/menu?clientId=${clientId}`;
+    return `https://tizianolopez.github.io/qr_menu2/dist/menu?clientId=${clientId}`;
 }
 
 // Show dashboard with user details

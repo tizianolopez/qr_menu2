@@ -168,35 +168,3 @@ if (document.querySelector('.nav-login')) {
         }
     });
 }
-
-// Code specific to menu.html
-if (window.location.pathname.includes('/menu')) {
-    const clientNameElement = document.getElementById('client-name');
-    const pdfListElement = document.querySelector('.pdf-list');
-
-    function getClientIdFromUrl() {
-        const params = new URLSearchParams(window.location.search);
-        return params.get('clientId');
-    }
-
-    async function loadClientData(clientId) {
-        const userDocRef = doc(db, 'clients', clientId);
-        const docSnapshot = await getDoc(userDocRef);
-        if (docSnapshot.exists()) {
-            const userData = docSnapshot.data();
-            clientNameElement.textContent = userData.name;
-            listUploadedPDFs(clientId, pdfListElement);
-        } else {
-            clientNameElement.textContent = 'Client not found';
-        }
-    }
-
-    document.addEventListener('DOMContentLoaded', () => {
-        const clientId = getClientIdFromUrl();
-        if (clientId) {
-            loadClientData(clientId);
-        } else {
-            clientNameElement.textContent = 'Invalid client ID';
-        }
-    });
-}

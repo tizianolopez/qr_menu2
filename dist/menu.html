@@ -32,105 +32,123 @@
             color: #007bff;
             font-weight: bold;
         }
+        .download-button {
+            padding: 8px 16px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .download-button:hover {
+            background-color: #0056b3;
+        }
     </style>
 </head>
 <body>
     <div class="menu-container">
         <h1>Client Menu</h1>
-        <div id="menu-content"></div>
+        <div id="menu-content">
+            <h2 id="client-name"></h2>
+            <div id="menu-list"></div>
+        </div>
     </div>
 
-    <!-- Firebase Scripts (Global CDN) -->
-    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-storage-compat.js"></script>
+    <!-- Firebase Scripts (Local Import) -->
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js';
+        import { getFirestore, doc, getDoc } from 'https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js';
+        import { getStorage, ref, getDownloadURL, listAll } from 'https://www.gstatic.com/firebasejs/9.6.10/firebase-storage-compat.js';
 
-    <script>
         // Your Firebase configuration
         const firebaseConfig = {
-            apiKey: "AIzaSyBFU2ZnJ1oh-7R5QkFEmoUOevQcTQ0mZ_w",
-            authDomain: "qr-menu-383cd.firebaseapp.com",
-            projectId: "qr-menu-383cd",
-            storageBucket: "qr-menu-383cd.appspot.com",
-            messagingSenderId: "98382457208",
-            appId: "1:98382457208:web:d7d5acb86901141134008d"
-        };
-
+    apiKey: "AIzaSyBFU2ZnJ1oh-7R5QkFEmoUOevQcTQ0mZ_w",
+    authDomain: "qr-menu-383cd.firebaseapp.com",
+    projectId: "qr-menu-383cd",
+    storageBucket: "qr-menu-383cd.appspot.com",
+    messagingSenderId: "98382457208",
+    appId: "1:98382457208:web:d7d5acb86901141134008d"
+};
         // Initialize Firebase
-        const app = firebase.initializeApp(firebaseConfig);
-        const db = firebase.firestore();
-        const storage = firebase.storage();
+        initializeApp(firebaseConfig);
 
-        // Get the clientId from the URL
-        const urlParams = new URLSearchParams(window.location.search);
-        const clientId = urlParams.get('clientId');
+        // INIT SERVICES
+        const db = getFirestore();
+        const storage = getStorage();
 
-        if (clientId) {
-            const clientDocRef = db.collection('clients').doc(clientId);
-            clientDocRef.get().then((doc) => {
-                if (doc.exists) {
-                    const data = doc.data();
-                    const menuContent = document.getElementById('menu-content');
-                    menuContent.innerHTML = `
-                        <h2>Welcome, ${data.name}</h2>
-                        <p>Email: ${data.email}</p>
-                        <h3>Your QR Code:</h3>
-                        <img src="${data.qrCodeUrl}" alt="QR Code">
-                        <h3>Menus:</h3>
-                        <div id="menu-list"></div>
-                    `;
-                    const menuList = document.getElementById('menu-list');
-                    if (data.pdfs && data.pdfs.length > 0) {
-                        data.pdfs.forEach((pdf) => {
-                            const menuItem = document.createElement('div');
-                            menuItem.classList.add('menu-item');
-                            const link = document.createElement('a');
-                            link.href = pdf.url;
-                            link.textContent = pdf.name;
-                            link.setAttribute('target', '_blank'); // Open link in new tab
-                            const downloadButton = document.createElement('button');
-                            downloadButton.textContent = 'Download';
-                            downloadButton.addEventListener('click', () => {
-                                downloadPdf(pdf.storagePath, pdf.name);
-                            });
-                            menuItem.appendChild(link);
-                            menuItem.appendChild(downloadButton);
-                            menuList.appendChild(menuItem);
+        // Function to get client ID from URL query parameter
+        function getClientIdFromUrl() {
+            const params = new URLSearchParams(window.location.search);
+            return params.get('clientId');
+        }
+
+        // Function to load client data and display menu
+        async function loadClientData(clientId) {
+            const clientDocRef = doc(db, 'clients', clientId);
+            const docSnapshot = await getDoc(clientDocRef);
+
+            if (docSnapshot.exists()) {
+                const userData = docSnapshot.data();
+                document.getElementById('client-name').textContent = `Welcome, ${userData.name}`;
+
+                const menuList = document.getElementById('menu-list');
+                menuList.innerHTML = ''; // Clear previous menu items
+
+                if (userData.pdfs && userData.pdfs.length > 0) {
+                    userData.pdfs.forEach((pdf) => {
+                        const menuItem = document.createElement('div');
+                        menuItem.classList.add('menu-item');
+
+                        const link = document.createElement('a');
+                        link.href = pdf.url;
+                        link.textContent = pdf.name;
+                        link.setAttribute('target', '_blank'); // Open link in new tab
+
+                        const downloadButton = document.createElement('button');
+                        downloadButton.textContent = 'Download';
+                        downloadButton.classList.add('download-button');
+                        downloadButton.addEventListener('click', () => {
+                            downloadPdf(pdf.url, pdf.name);
                         });
-                    } else {
-                        menuList.innerHTML = '<p>No menus uploaded.</p>';
-                    }
+
+                        menuItem.appendChild(link);
+                        menuItem.appendChild(downloadButton);
+                        menuList.appendChild(menuItem);
+                    });
                 } else {
-                    document.getElementById('menu-content').innerHTML = '<p>No client found.</p>';
+                    menuList.innerHTML = '<p>No menus uploaded.</p>';
                 }
-            }).catch((error) => {
-                console.error('Error fetching client document:', error);
-                document.getElementById('menu-content').innerHTML = '<p>Error loading menu.</p>';
-            });
-        } else {
-            document.getElementById('menu-content').innerHTML = '<p>Invalid client ID.</p>';
+            } else {
+                document.getElementById('menu-content').innerHTML = '<p>Client not found.</p>';
+            }
         }
 
-        function downloadPdf(storagePath, name) {
-            const fileRef = storage.ref().child(storagePath);
-            fileRef.getDownloadURL().then((url) => {
-                const xhr = new XMLHttpRequest();
-                xhr.responseType = 'blob';
-                xhr.onload = () => {
-                    const blob = xhr.response;
-                    const link = document.createElement('a');
-                    link.href = window.URL.createObjectURL(blob);
-                    link.download = name;
-                    document.body.appendChild(link);
-                    link.click();
-                    document.body.removeChild(link);
-                };
-                xhr.open('GET', url);
-                xhr.send();
-            }).catch((error) => {
-                console.error('Error downloading PDF:', error);
-            });
+        // Function to download PDF
+        function downloadPdf(url, name) {
+            const xhr = new XMLHttpRequest();
+            xhr.responseType = 'blob';
+            xhr.onload = () => {
+                const blob = xhr.response;
+                const link = document.createElement('a');
+                link.href = window.URL.createObjectURL(blob);
+                link.download = name;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            };
+            xhr.open('GET', url);
+            xhr.send();
         }
+
+        // Load client data when the DOM is loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            const clientId = getClientIdFromUrl();
+            if (clientId) {
+                loadClientData(clientId);
+            } else {
+                document.getElementById('menu-content').innerHTML = '<p>Invalid client ID.</p>';
+            }
+        });
     </script>
 </body>
 </html>

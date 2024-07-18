@@ -35,7 +35,7 @@
 </head>
 <body>
     <div class="menu-container">
-        <h1>Client Menu1</h1>
+        <h1>Client Menu</h1>
         <div id="menu-content"></div>
     </div>
 
@@ -77,11 +77,6 @@
                         link.href = url;
                         link.textContent = itemRef.name;
                         link.setAttribute('target', '_blank'); // Open link in new tab
-                        const downloadButton = document.createElement('button');
-                        downloadButton.textContent = 'Download';
-                        downloadButton.addEventListener('click', () => {
-                            downloadPdf(url, itemRef.name);
-                        });
                         listItem.appendChild(link);
                         listItem.appendChild(downloadButton);
                         pdfListElement.appendChild(listItem);
@@ -100,10 +95,8 @@
                     const data = doc.data();
                     const menuContent = document.getElementById('menu-content');
                     menuContent.innerHTML = `
-                        <h2>Welcome, ${data.name}</h2>
+                        <h2>Bienvenido a ${data.name}</h2>
                         <p>Email: ${data.email}</p>
-                        <h3>Your QR Code:</h3>
-                        <img src="${data.qrCodeUrl}" alt="QR Code">
                         <h3>Menus:</h3>
                         <div id="menu-list"></div>
                     `;

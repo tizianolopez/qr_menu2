@@ -38,18 +38,25 @@ form {
     display: flex;
     flex-direction: column;
     align-items: center;
+    justify-content: space-between; /* Distribuye el espacio entre los elementos */
     margin: 20px auto;
     padding: 20px;
     background-color: #0000000d;
     border-radius: 5px;
     box-shadow: 10px 1px 5px rgba(0,0,0,0.1);
     max-width: 400px;
+    position: relative; /* Agregamos posición relativa para posicionar elementos hijos */
+}
+.login, .signup{
+    height: 25em; /* Altura fija para ambos formularios */
+}
+form h2 {
+    margin-bottom: 20px; /* Espacio adicional bajo el título */
 }
 
 form label {
     margin-top: 10px;
     font-size: 12px;
-
     width: 100%;
 }
 
@@ -61,24 +68,46 @@ form input {
     border-radius: 2em;
 }
 
+form .form-content {
+    flex: 1; /* Hace que el contenido del formulario ocupe todo el espacio disponible */
+    display: flex;
+    flex-direction: column;
+    justify-content: center; /* Centra el contenido verticalmente */
+}
+
 form button {
-    background: linear-gradient(45deg, #6a11cb, #2575fc);
+    background: linear-gradient(45deg, #115fcb, #2575fc);
+    border-radius: 1em;
     color: white;
     border: none;
     padding: 10px 20px;
     cursor: pointer;
-    margin-top: 2em;
-    border-radius: 2em;
     width: 100%;
     max-width: 200px;
     text-align: center;
-    transition: 0.5s; /* Correctly placed transition */
+    transition: 0.5s;
+    margin-top: 20px; /* Espacio arriba del botón */
 }
+.login button, .signup button{
+    background: linear-gradient(45deg, #3c11cb, #2575fc);
+    border-radius: 2em;
 
+
+}
+.signup button{
+    margin-top: 3em;
+
+}
+.login button{
+    margin-top: 9em;
+
+}
 form button:hover {
     background: linear-gradient(45deg, rgba(106, 17, 203, 0.8), rgba(37, 117, 252, 0.8));
-    /* Removed the transition property from here */
 }
+
+
+
 
 .dashboard {
     margin: 20px auto;

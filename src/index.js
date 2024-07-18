@@ -1,6 +1,6 @@
 import { initializeApp } from 'firebase/app';
 import { getFirestore, doc, setDoc, getDoc } from 'firebase/firestore';
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from 'firebase/auth';
 import { getStorage, ref, uploadBytes, getDownloadURL, listAll } from 'firebase/storage';
 
 const firebaseConfig = {
@@ -18,7 +18,6 @@ initializeApp(firebaseConfig);
 const db = getFirestore();
 const auth = getAuth();
 const storage = getStorage();
-const googleProvider = new GoogleAuthProvider();
 
 // Common function to list uploaded PDFs for the user
 function listUploadedPDFs(userId, pdfListElement) {
@@ -45,7 +44,6 @@ if (document.querySelector('.nav-login')) {
     // Navbar buttons
     const navLogin = document.querySelector('.nav-login');
     const navSignup = document.querySelector('.nav-signup');
-    const googleLoginButton = document.querySelector('.google-login');
     const logoutButton = document.querySelector('.logout');
 
     // Forms
@@ -68,26 +66,6 @@ if (document.querySelector('.nav-login')) {
     navSignup.addEventListener('click', () => {
         signupForm.style.display = 'block';
         loginForm.style.display = 'none';
-    });
-
-    googleLoginButton.addEventListener('click', () => {
-        signInWithPopup(auth, googleProvider).then((result) => {
-            const user = result.user;
-            const userDocRef = doc(db, 'clients', user.uid);
-            getDoc(userDocRef).then((docSnapshot) => {
-                if (!docSnapshot.exists()) {
-                    const clientUrl = generateUniqueUrl(user.uid); // Generar URL única
-                    const qrCodeUrl = generateQRCodeUrl(clientUrl); // Generar URL del QR Code
-                    setDoc(userDocRef, { name: user.displayName, email: user.email, qrCodeUrl, clientUrl }).then(() => {
-                        showDashboard(user);
-                    });
-                } else {
-                    showDashboard(user);
-                }
-            });
-        }).catch((error) => {
-            console.log(error.message);
-        });
     });
 
     logoutButton.addEventListener('click', () => {
@@ -140,12 +118,12 @@ if (document.querySelector('.nav-login')) {
         return `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(clientUrl)}`;
     }
 
-    // Generate a unique URL for each client
-    function generateUniqueUrl(userId) {
-        return `https://yourdomain.com/client/${userId}`;
+    // Generate a unique URL for the client
+    function generateUniqueUrl(clientId) {
+        return `https://tizianolopez.github.io/qr_menu2/dist/menu?clientId=${clientId}`;
     }
 
-    // Show dashboard for the logged in user
+    // Show dashboard with user details
     function showDashboard(user) {
         const userDocRef = doc(db, 'clients', user.uid);
         getDoc(userDocRef).then((docSnapshot) => {

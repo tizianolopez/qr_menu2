@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -77,11 +78,6 @@
                         link.href = url;
                         link.textContent = itemRef.name;
                         link.setAttribute('target', '_blank'); // Open link in new tab
-                        const downloadButton = document.createElement('button');
-                        downloadButton.textContent = 'Download';
-                        downloadButton.addEventListener('click', () => {
-                            downloadPdf(url, itemRef.name);
-                        });
                         listItem.appendChild(link);
                         listItem.appendChild(downloadButton);
                         pdfListElement.appendChild(listItem);

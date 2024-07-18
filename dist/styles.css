@@ -1,5 +1,6 @@
 body {
-    font-family: 'Open Sans', sans-serif;    margin: 0;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    margin: 0;
     padding: 0;
     background-color: #f5f5f5;
     color: #333;
@@ -43,9 +44,15 @@ form {
     padding: 20px;
     background-color: #0000000d;
     border-radius: 5px;
-    box-shadow: 10px 1px 5px rgba(0,0,0,0.1);
+    box-shadow: 5px 5px 7px #0000002d;
     max-width: 400px;
     position: relative; /* Agregamos posición relativa para posicionar elementos hijos */
+    transition: transform 30s ease; /* Ensures smooth transition for both hover and de-hover */
+
+}
+form:hover {
+    transform: translate(0, -7px); /* Moves the element up by 5 pixels */
+    transition: transform 0.5s ease; /* Smooth transition for the transform */
 }
 .login, .signup{
     height: 25em; /* Altura fija para ambos formularios */
@@ -89,10 +96,11 @@ form button {
     margin-top: 20px; /* Espacio arriba del botón */
 }
 .login button, .signup button{
-    background: linear-gradient(45deg, #3c11cb, #2575fc);
+    background-color: rgba(0, 102, 222);
+    color: rgba(255, 255, 255,);
     border-radius: 2em;
-
-
+    padding: .75rem 1rem;
+    font-size: 14px;
 }
 .signup button{
     margin-top: 3em;
@@ -103,7 +111,7 @@ form button {
 
 }
 form button:hover {
-    background: linear-gradient(45deg, rgba(106, 17, 203, 0.8), rgba(37, 117, 252, 0.8));
+    background: linear-gradient(45deg, rgba(39, 57, 190, 0.79), rgba(37, 116, 252, 0.626));
 }
 
 

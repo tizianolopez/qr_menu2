@@ -1,16 +1,92 @@
+<!-- menu.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Client Menu</title>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-storage.js"></script>
 </head>
 <body>
-    <h1>Menu de: <span id="client-name"></span></h1>
-    
-    <h3>Your Menus:</h3>
-    <ul class="pdf-list"></ul>
+    <h1>Client Menu</h1>
+    <div id="menu-content"></div>
+    <script>
+        // Your Firebase configuration
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_AUTH_DOMAIN",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_STORAGE_BUCKET",
+            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+            appId: "YOUR_APP_ID"
+        };
 
-    <script src="bundle.js"></script>
+        // Initialize Firebase
+        const app = firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        const storage = firebase.storage();
+
+        // Get the clientId from the URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const clientId = urlParams.get('clientId');
+
+        if (clientId) {
+            const clientDocRef = db.collection('clients').doc(clientId);
+            clientDocRef.get().then((doc) => {
+                if (doc.exists) {
+                    const data = doc.data();
+                    const menuContent = document.getElementById('menu-content');
+                    menuContent.innerHTML = `
+                        <h2>Welcome, ${data.name}</h2>
+                        <p>Email: ${data.email}</p>
+                        <h3>Your QR Code:</h3>
+                        <img src="${data.qrCodeUrl}" alt="QR Code">
+                        <h3>Menus:</h3>
+                        <ul id="menu-list"></ul>
+                    `;
+                    const menuList = document.getElementById('menu-list');
+                    if (data.pdfs && data.pdfs.length > 0) {
+                        data.pdfs.forEach((pdf) => {
+                            const downloadButton = document.createElement('button');
+                            downloadButton.textContent = `Download ${pdf.name}`;
+                            downloadButton.addEventListener('click', () => {
+                                downloadPdf(pdf.url, pdf.name);
+                            });
+                            const listItem = document.createElement('li');
+                            listItem.appendChild(downloadButton);
+                            menuList.appendChild(listItem);
+                        });
+                    } else {
+                        menuList.innerHTML = '<li>No menus uploaded.</li>';
+                    }
+                } else {
+                    document.getElementById('menu-content').innerHTML = '<p>No client found.</p>';
+                }
+            }).catch((error) => {
+                console.error('Error fetching client document:', error);
+                document.getElementById('menu-content').innerHTML = '<p>Error loading menu.</p>';
+            });
+        } else {
+            document.getElementById('menu-content').innerHTML = '<p>Invalid client ID.</p>';
+        }
+
+        function downloadPdf(url, name) {
+            const xhr = new XMLHttpRequest();
+            xhr.responseType = 'blob';
+            xhr.onload = () => {
+                const blob = xhr.response;
+                const link = document.createElement('a');
+                link.href = window.URL.createObjectURL(blob);
+                link.download = name;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            };
+            xhr.open('GET', url);
+            xhr.send();
+        }
+    </script>
 </body>
 </html>

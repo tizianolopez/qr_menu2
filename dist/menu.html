@@ -59,12 +59,12 @@
     <script>
         // Your Firebase configuration
         const firebaseConfig = {
-            apiKey: "AIzaSyBFU2ZnJ1oh-7R5QkFEmoUOevQcTQ0mZ_w",
-            authDomain: "qr-menu-383cd.firebaseapp.com",
-            projectId: "qr-menu-383cd",
-            storageBucket: "qr-menu-383cd.appspot.com",
-            messagingSenderId: "98382457208",
-            appId: "1:98382457208:web:d7d5acb86901141134008d"
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_AUTH_DOMAIN",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_STORAGE_BUCKET",
+            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+            appId: "YOUR_APP_ID"
         };
 
         // Initialize Firebase
@@ -105,19 +105,18 @@
         }
 
         function downloadPdf(url, name) {
-            const xhr = new XMLHttpRequest();
-            xhr.responseType = 'blob';
-            xhr.onload = () => {
-                const blob = xhr.response;
-                const link = document.createElement('a');
-                link.href = window.URL.createObjectURL(blob);
-                link.download = name;
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-            };
-            xhr.open('GET', url);
-            xhr.send();
+            // Using fetch API to download the file
+            fetch(url)
+                .then(response => response.blob())
+                .then(blob => {
+                    const link = document.createElement('a');
+                    link.href = window.URL.createObjectURL(blob);
+                    link.download = name;
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                })
+                .catch(error => console.error('Error downloading PDF:', error));
         }
     </script>
 </body>

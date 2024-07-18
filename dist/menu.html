@@ -59,40 +59,41 @@
     <script>
         // Your Firebase configuration
         const firebaseConfig = {
-            apiKey: "YOUR_API_KEY",
-            authDomain: "YOUR_AUTH_DOMAIN",
-            projectId: "YOUR_PROJECT_ID",
-            storageBucket: "YOUR_STORAGE_BUCKET",
-            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-            appId: "YOUR_APP_ID"
-        };
+    apiKey: "AIzaSyBFU2ZnJ1oh-7R5QkFEmoUOevQcTQ0mZ_w",
+    authDomain: "qr-menu-383cd.firebaseapp.com",
+    projectId: "qr-menu-383cd",
+    storageBucket: "qr-menu-383cd.appspot.com",
+    messagingSenderId: "98382457208",
+    appId: "1:98382457208:web:d7d5acb86901141134008d"
+};
+
 
         // Initialize Firebase
         const app = firebase.initializeApp(firebaseConfig);
-        const db = firebase.firestore();
         const storage = firebase.storage();
 
-        // Get the clientId from the URL
+        // Get the clientId from the URL (you need to implement this part)
         const urlParams = new URLSearchParams(window.location.search);
         const clientId = urlParams.get('clientId');
 
         if (clientId) {
+            // Assuming you have a function to retrieve client data
+            fetchClientData(clientId);
+        } else {
+            document.getElementById('menu-content').innerHTML = '<p>Invalid client ID.</p>';
+        }
+
+        function fetchClientData(clientId) {
+            // Fetch client data from Firestore or any other source
+            // Replace this with your logic to fetch client data
+            // For example, fetching from Firestore
+            const db = firebase.firestore();
             const clientDocRef = db.collection('clients').doc(clientId);
             clientDocRef.get().then((doc) => {
                 if (doc.exists) {
                     const data = doc.data();
-                    const menuContent = document.getElementById('menu-content');
-                    menuContent.innerHTML = `
-                        <h2>Welcome, ${data.name}</h2>
-                        <button class="download-button" id="downloadButton">Download Menu</button>
-                    `;
-
-                    // Handle download button click
-                    const downloadButton = document.getElementById('downloadButton');
-                    downloadButton.addEventListener('click', () => {
-                        downloadPdf(data.pdfUrl, 'menu.pdf');
-                    });
-
+                    console.log('Client data:', data);
+                    displayClientData(data);
                 } else {
                     document.getElementById('menu-content').innerHTML = '<p>No client found.</p>';
                 }
@@ -100,8 +101,20 @@
                 console.error('Error fetching client document:', error);
                 document.getElementById('menu-content').innerHTML = '<p>Error loading menu.</p>';
             });
-        } else {
-            document.getElementById('menu-content').innerHTML = '<p>Invalid client ID.</p>';
+        }
+
+        function displayClientData(data) {
+            const menuContent = document.getElementById('menu-content');
+            menuContent.innerHTML = `
+                <h2>Welcome, ${data.name}</h2>
+                <button class="download-button" id="downloadButton">Download PDF</button>
+            `;
+
+            // Handle download button click
+            const downloadButton = document.getElementById('downloadButton');
+            downloadButton.addEventListener('click', () => {
+                downloadPdf(data.pdfUrl, 'menu.pdf');
+            });
         }
 
         function downloadPdf(url, name) {

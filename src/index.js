@@ -19,27 +19,19 @@ const db = getFirestore();
 const auth = getAuth();
 const storage = getStorage();
 
-// Set to keep track of added PDF names
-const addedPDFNames = new Set();
-
+// Common function to list uploaded PDFs for the user
 function listUploadedPDFs(userId, pdfListElement) {
-    console.log('listUploadedPDFs called for userId:', userId); // For debugging
     const userStorageRef = ref(storage, `pdfs/${userId}`);
-    pdfListElement.innerHTML = ''; // Clear the list before adding new items
-    addedPDFNames.clear(); // Clear the Set before adding new items
-
     listAll(userStorageRef).then((res) => {
+        pdfListElement.innerHTML = '';
         res.items.forEach((itemRef) => {
             getDownloadURL(itemRef).then((url) => {
-                if (!addedPDFNames.has(itemRef.name)) {
-                    const listItem = document.createElement('li');
-                    const link = document.createElement('a');
-                    link.href = url;
-                    link.textContent = itemRef.name;
-                    listItem.appendChild(link);
-                    pdfListElement.appendChild(listItem);
-                    addedPDFNames.add(itemRef.name); // Add to Set
-                }
+                const listItem = document.createElement('li');
+                const link = document.createElement('a');
+                link.href = url;
+                link.textContent = itemRef.name;
+                listItem.appendChild(link);
+                pdfListElement.appendChild(listItem);
             });
         });
     }).catch((error) => {
@@ -48,9 +40,7 @@ function listUploadedPDFs(userId, pdfListElement) {
 }
 
 // Code specific to index.html
-document.addEventListener('DOMContentLoaded', () => {
-    console.log('DOM fully loaded and parsed');
-
+if (document.querySelector('.nav-login')) {
     // Navbar buttons
     const navLogin = document.querySelector('.nav-login');
     const navSignup = document.querySelector('.nav-signup');
@@ -69,19 +59,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Show/hide forms
     navLogin.addEventListener('click', () => {
-        console.log('Login button clicked');
         loginForm.style.display = 'block';
         signupForm.style.display = 'none';
     });
 
     navSignup.addEventListener('click', () => {
-        console.log('Signup button clicked');
         signupForm.style.display = 'block';
         loginForm.style.display = 'none';
     });
 
     logoutButton.addEventListener('click', () => {
-        console.log('Logout button clicked');
         signOut(auth).then(() => {
             dashboard.style.display = 'none';
             logoutButton.style.display = 'none';
@@ -100,8 +87,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const password = signupForm.password.value;
         createUserWithEmailAndPassword(auth, email, password).then((userCredential) => {
             const user = userCredential.user;
-            const clientUrl = generateUniqueUrl(user.uid); // Generate unique URL
-            const qrCodeUrl = generateQRCodeUrl(clientUrl); // Generate QR code URL
+            const clientUrl = generateUniqueUrl(user.uid); // Generar URL única
+            const qrCodeUrl = generateQRCodeUrl(clientUrl); // Generar URL del QR Code
 
             const userDocRef = doc(db, 'clients', user.uid);
             setDoc(userDocRef, { name, email, qrCodeUrl, clientUrl }).then(() => {
@@ -138,7 +125,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Show dashboard with user details
     function showDashboard(user) {
-        console.log('showDashboard called for user:', user.uid); // For debugging
         const userDocRef = doc(db, 'clients', user.uid);
         getDoc(userDocRef).then((docSnapshot) => {
             const userData = docSnapshot.data();
@@ -173,14 +159,12 @@ document.addEventListener('DOMContentLoaded', () => {
     // Subscribe to auth state changes
     onAuthStateChanged(auth, (user) => {
         if (user) {
-            console.log('User is signed in:', user.uid);
             showDashboard(user);
         } else {
-            console.log('No user is signed in');
             dashboard.style.display = 'none';
             logoutButton.style.display = 'none';
             navLogin.style.display = 'block';
             navSignup.style.display = 'block';
         }
     });
-});
+}

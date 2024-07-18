@@ -59,18 +59,20 @@
     <script>
         // Your Firebase configuration
         const firebaseConfig = {
-    apiKey: "AIzaSyBFU2ZnJ1oh-7R5QkFEmoUOevQcTQ0mZ_w",
-    authDomain: "qr-menu-383cd.firebaseapp.com",
-    projectId: "qr-menu-383cd",
-    storageBucket: "qr-menu-383cd.appspot.com",
-    messagingSenderId: "98382457208",
-    appId: "1:98382457208:web:d7d5acb86901141134008d"
-};
-
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_AUTH_DOMAIN",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_STORAGE_BUCKET",
+            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+            appId: "YOUR_APP_ID"
+        };
 
         // Initialize Firebase
         const app = firebase.initializeApp(firebaseConfig);
         const storage = firebase.storage();
+
+        // Elements
+        const menuContent = document.getElementById('menu-content');
 
         // Get the clientId from the URL (you need to implement this part)
         const urlParams = new URLSearchParams(window.location.search);
@@ -80,7 +82,7 @@
             // Assuming you have a function to retrieve client data
             fetchClientData(clientId);
         } else {
-            document.getElementById('menu-content').innerHTML = '<p>Invalid client ID.</p>';
+            menuContent.innerHTML = '<p>Invalid client ID.</p>';
         }
 
         function fetchClientData(clientId) {
@@ -92,44 +94,78 @@
             clientDocRef.get().then((doc) => {
                 if (doc.exists) {
                     const data = doc.data();
-                    console.log('Client data:', data);
                     displayClientData(data);
                 } else {
-                    document.getElementById('menu-content').innerHTML = '<p>No client found.</p>';
+                    menuContent.innerHTML = '<p>No client found.</p>';
                 }
             }).catch((error) => {
                 console.error('Error fetching client document:', error);
-                document.getElementById('menu-content').innerHTML = '<p>Error loading menu.</p>';
+                menuContent.innerHTML = '<p>Error loading menu.</p>';
             });
         }
 
         function displayClientData(data) {
-            const menuContent = document.getElementById('menu-content');
             menuContent.innerHTML = `
                 <h2>Welcome, ${data.name}</h2>
-                <button class="download-button" id="downloadButton">Download PDF</button>
+                <p>Email: ${data.email}</p>
+                <h3>Your QR Code:</h3>
+                <img src="${data.qrCodeUrl}" alt="QR Code">
+                <h3>Menus:</h3>
+                <div id="menu-list"></div>
             `;
+            const menuList = document.getElementById('menu-list');
 
-            // Handle download button click
-            const downloadButton = document.getElementById('downloadButton');
-            downloadButton.addEventListener('click', () => {
-                downloadPdf(data.pdfUrl, 'menu.pdf');
+            // List PDFs
+            listUploadedPDFs(data.clientId);
+        }
+
+        // List uploaded PDFs for the client
+        function listUploadedPDFs(clientId) {
+            const userStorageRef = firebase.storage().ref(`pdfs/${clientId}`);
+            userStorageRef.listAll().then((res) => {
+                const pdfList = res.items.map((itemRef) => {
+                    return { name: itemRef.name, ref: itemRef };
+                });
+
+                // Display PDF list
+                const menuList = document.getElementById('menu-list');
+                pdfList.forEach((pdf) => {
+                    const listItem = document.createElement('div');
+                    listItem.classList.add('menu-item');
+                    const link = document.createElement('a');
+                    link.href = '#'; // Placeholder, will be replaced onclick
+                    link.textContent = pdf.name;
+                    link.addEventListener('click', () => {
+                        downloadPdf(pdf.ref);
+                    });
+                    listItem.appendChild(link);
+                    menuList.appendChild(listItem);
+                });
+            }).catch((error) => {
+                console.log('Error listing PDFs:', error.message);
+                menuList.innerHTML = '<p>No PDFs found.</p>';
             });
         }
 
-        function downloadPdf(url, name) {
-            // Using fetch API to download the file
-            fetch(url)
-                .then(response => response.blob())
-                .then(blob => {
+        // Download PDF
+        function downloadPdf(pdfRef) {
+            pdfRef.getDownloadURL().then((url) => {
+                const xhr = new XMLHttpRequest();
+                xhr.responseType = 'blob';
+                xhr.onload = () => {
+                    const blob = xhr.response;
                     const link = document.createElement('a');
                     link.href = window.URL.createObjectURL(blob);
-                    link.download = name;
+                    link.download = pdfRef.name;
                     document.body.appendChild(link);
                     link.click();
                     document.body.removeChild(link);
-                })
-                .catch(error => console.error('Error downloading PDF:', error));
+                };
+                xhr.open('GET', url);
+                xhr.send();
+            }).catch((error) => {
+                console.error('Error getting download URL:', error);
+            });
         }
     </script>
 </body>

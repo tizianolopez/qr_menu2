@@ -19,107 +19,8 @@ const db = getFirestore();
 const auth = getAuth();
 const storage = getStorage();
 
-// Navbar buttons
-const navLogin = document.querySelector('.nav-login');
-const navSignup = document.querySelector('.nav-signup');
-const logoutButton = document.querySelector('.logout');
-
-// Forms
-const signupForm = document.querySelector('.signup');
-const loginForm = document.querySelector('.login');
-const uploadPdfForm = document.querySelector('.upload-pdf');
-const dashboard = document.querySelector('.dashboard');
-
-// Display elements
-const userNameElement = document.getElementById('user-name');
-const userQrElement = document.getElementById('qr-code');
-const pdfListElement = document.querySelector('.pdf-list');
-
-// Show/hide forms
-navLogin.addEventListener('click', () => {
-    loginForm.style.display = 'block';
-    signupForm.style.display = 'none';
-});
-
-navSignup.addEventListener('click', () => {
-    signupForm.style.display = 'block';
-    loginForm.style.display = 'none';
-});
-
-logoutButton.addEventListener('click', () => {
-    signOut(auth).then(() => {
-        dashboard.style.display = 'none';
-        logoutButton.style.display = 'none';
-        navLogin.style.display = 'block';
-        navSignup.style.display = 'block';
-    }).catch((error) => {
-        console.log(error.message);
-    });
-});
-
-// Sign up
-signupForm.addEventListener('submit', (e) => {
-    e.preventDefault();
-    const name = signupForm.name.value;
-    const email = signupForm.email.value;
-    const password = signupForm.password.value;
-    createUserWithEmailAndPassword(auth, email, password).then((userCredential) => {
-        const user = userCredential.user;
-        const clientUrl = generateUniqueUrl(user.uid); // Generar URL única
-        const qrCodeUrl = generateQRCodeUrl(clientUrl); // Generar URL del QR Code
-
-        const userDocRef = doc(db, 'clients', user.uid);
-        setDoc(userDocRef, { name, email, qrCodeUrl, clientUrl }).then(() => {
-            signupForm.reset();
-            showDashboard(user);
-        });
-    }).catch((error) => {
-        console.log(error.message);
-    });
-});
-
-// Log in
-loginForm.addEventListener('submit', (e) => {
-    e.preventDefault();
-    const email = loginForm.loginEmail.value;
-    const password = loginForm.loginPassword.value;
-    signInWithEmailAndPassword(auth, email, password).then((userCredential) => {
-        const user = userCredential.user;
-        showDashboard(user);
-    }).catch((error) => {
-        console.log(error.message);
-    });
-});
-
-// Generate a QR code URL using qrserver.com
-function generateQRCodeUrl(clientUrl) {
-    return `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(clientUrl)}`;
-}
-
-// Generate a unique URL for the client
-function generateUniqueUrl(clientId) {
-    return `https://tizianolopez.github.io/qr_menu2/dist/menu?clientId=${clientId}`;
-}
-
-// Show dashboard with user details
-function showDashboard(user) {
-    const userDocRef = doc(db, 'clients', user.uid);
-    getDoc(userDocRef).then((docSnapshot) => {
-        const userData = docSnapshot.data();
-        userNameElement.textContent = userData.name;
-        userQrElement.innerHTML = `<img src="${userData.qrCodeUrl}" alt="QR Code">`;
-        dashboard.style.display = 'block';
-        logoutButton.style.display = 'block';
-        navLogin.style.display = 'none';
-        navSignup.style.display = 'none';
-        loginForm.style.display = 'none';
-        signupForm.style.display = 'none';
-        listUploadedPDFs(user.uid);
-    });
-}
-
-// List uploaded PDFs for the user
-function listUploadedPDFs(userId) {
+// Common function to list uploaded PDFs for the user
+function listUploadedPDFs(userId, pdfListElement) {
     const userStorageRef = ref(storage, `pdfs/${userId}`);
     listAll(userStorageRef).then((res) => {
         pdfListElement.innerHTML = '';
@@ -138,30 +39,164 @@ function listUploadedPDFs(userId) {
     });
 }
 
-// Upload PDF
-uploadPdfForm.addEventListener('submit', (e) => {
-    e.preventDefault();
-    const file = uploadPdfForm.pdfFile.files[0];
-    const user = auth.currentUser;
-    if (user && file) {
-        const fileRef = ref(storage, `pdfs/${user.uid}/${file.name}`);
-        uploadBytes(fileRef, file).then(() => {
-            uploadPdfForm.reset();
-            listUploadedPDFs(user.uid);
+// Code specific to index.html
+if (document.querySelector('.nav-login')) {
+    // Navbar buttons
+    const navLogin = document.querySelector('.nav-login');
+    const navSignup = document.querySelector('.nav-signup');
+    const logoutButton = document.querySelector('.logout');
+
+    // Forms
+    const signupForm = document.querySelector('.signup');
+    const loginForm = document.querySelector('.login');
+    const uploadPdfForm = document.querySelector('.upload-pdf');
+    const dashboard = document.querySelector('.dashboard');
+
+    // Display elements
+    const userNameElement = document.getElementById('user-name');
+    const userQrElement = document.getElementById('qr-code');
+    const pdfListElement = document.querySelector('.pdf-list');
+
+    // Show/hide forms
+    navLogin.addEventListener('click', () => {
+        loginForm.style.display = 'block';
+        signupForm.style.display = 'none';
+    });
+
+    navSignup.addEventListener('click', () => {
+        signupForm.style.display = 'block';
+        loginForm.style.display = 'none';
+    });
+
+    logoutButton.addEventListener('click', () => {
+        signOut(auth).then(() => {
+            dashboard.style.display = 'none';
+            logoutButton.style.display = 'none';
+            navLogin.style.display = 'block';
+            navSignup.style.display = 'block';
         }).catch((error) => {
             console.log(error.message);
         });
-    }
-});
+    });
 
-// Subscribe to auth state changes
-onAuthStateChanged(auth, (user) => {
-    if (user) {
-        showDashboard(user);
-    } else {
-        dashboard.style.display = 'none';
-        logoutButton.style.display = 'none';
-        navLogin.style.display = 'block';
-        navSignup.style.display = 'block';
+    // Sign up
+    signupForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const name = signupForm.name.value;
+        const email = signupForm.email.value;
+        const password = signupForm.password.value;
+        createUserWithEmailAndPassword(auth, email, password).then((userCredential) => {
+            const user = userCredential.user;
+            const clientUrl = generateUniqueUrl(user.uid); // Generar URL única
+            const qrCodeUrl = generateQRCodeUrl(clientUrl); // Generar URL del QR Code
+
+            const userDocRef = doc(db, 'clients', user.uid);
+            setDoc(userDocRef, { name, email, qrCodeUrl, clientUrl }).then(() => {
+                signupForm.reset();
+                showDashboard(user);
+            });
+        }).catch((error) => {
+            console.log(error.message);
+        });
+    });
+
+    // Log in
+    loginForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const email = loginForm.loginEmail.value;
+        const password = loginForm.loginPassword.value;
+        signInWithEmailAndPassword(auth, email, password).then((userCredential) => {
+            const user = userCredential.user;
+            showDashboard(user);
+        }).catch((error) => {
+            console.log(error.message);
+        });
+    });
+
+    // Generate a QR code URL using qrserver.com
+    function generateQRCodeUrl(clientUrl) {
+        return `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(clientUrl)}`;
     }
-});
+
+    // Generate a unique URL for the client
+    function generateUniqueUrl(clientId) {
+        return `https://tizianolopez.github.io/qr_menu2/dist/menu?clientId=${clientId}`;
+    }
+
+    // Show dashboard with user details
+    function showDashboard(user) {
+        const userDocRef = doc(db, 'clients', user.uid);
+        getDoc(userDocRef).then((docSnapshot) => {
+            const userData = docSnapshot.data();
+            userNameElement.textContent = userData.name;
+            userQrElement.innerHTML = `<img src="${userData.qrCodeUrl}" alt="QR Code">`;
+            dashboard.style.display = 'block';
+            logoutButton.style.display = 'block';
+            navLogin.style.display = 'none';
+            navSignup.style.display = 'none';
+            loginForm.style.display = 'none';
+            signupForm.style.display = 'none';
+            listUploadedPDFs(user.uid, pdfListElement);
+        });
+    }
+
+    // Upload PDF
+    uploadPdfForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const file = uploadPdfForm.pdfFile.files[0];
+        const user = auth.currentUser;
+        if (user && file) {
+            const fileRef = ref(storage, `pdfs/${user.uid}/${file.name}`);
+            uploadBytes(fileRef, file).then(() => {
+                uploadPdfForm.reset();
+                listUploadedPDFs(user.uid, pdfListElement);
+            }).catch((error) => {
+                console.log(error.message);
+            });
+        }
+    });
+
+    // Subscribe to auth state changes
+    onAuthStateChanged(auth, (user) => {
+        if (user) {
+            showDashboard(user);
+        } else {
+            dashboard.style.display = 'none';
+            logoutButton.style.display = 'none';
+            navLogin.style.display = 'block';
+            navSignup.style.display = 'block';
+        }
+    });
+}
+
+// Code specific to menu.html
+if (window.location.pathname.includes('/menu')) {
+    const clientNameElement = document.getElementById('client-name');
+    const pdfListElement = document.querySelector('.pdf-list');
+
+    function getClientIdFromUrl() {
+        const params = new URLSearchParams(window.location.search);
+        return params.get('clientId');
+    }
+
+    async function loadClientData(clientId) {
+        const userDocRef = doc(db, 'clients', clientId);
+        const docSnapshot = await getDoc(userDocRef);
+        if (docSnapshot.exists()) {
+            const userData = docSnapshot.data();
+            clientNameElement.textContent = userData.name;
+            listUploadedPDFs(clientId, pdfListElement);
+        } else {
+            clientNameElement.textContent = 'Client not found';
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const clientId = getClientIdFromUrl();
+        if (clientId) {
+            loadClientData(clientId);
+        } else {
+            clientNameElement.textContent = 'Invalid client ID';
+        }
+    });
+}

@@ -5,13 +5,44 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Client Menu</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        h1 {
+            text-align: center;
+        }
+        .menu-container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .menu-item {
+            margin-bottom: 10px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            background-color: #f9f9f9;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .menu-item a {
+            text-decoration: none;
+            color: #007bff;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="menu-container">
+        <h1>Client Menu</h1>
+        <div id="menu-content"></div>
+    </div>
+
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-storage.js"></script>
-</head>
-<body>
-    <h1>Client Menu</h1>
-    <div id="menu-content"></div>
     <script>
         // Your Firebase configuration
         const firebaseConfig = {
@@ -44,22 +75,28 @@
                         <h3>Your QR Code:</h3>
                         <img src="${data.qrCodeUrl}" alt="QR Code">
                         <h3>Menus:</h3>
-                        <ul id="menu-list"></ul>
+                        <div id="menu-list"></div>
                     `;
                     const menuList = document.getElementById('menu-list');
                     if (data.pdfs && data.pdfs.length > 0) {
                         data.pdfs.forEach((pdf) => {
+                            const menuItem = document.createElement('div');
+                            menuItem.classList.add('menu-item');
+                            const link = document.createElement('a');
+                            link.href = pdf.url;
+                            link.textContent = pdf.name;
+                            link.setAttribute('target', '_blank'); // Open link in new tab
                             const downloadButton = document.createElement('button');
-                            downloadButton.textContent = `Download ${pdf.name}`;
+                            downloadButton.textContent = 'Download';
                             downloadButton.addEventListener('click', () => {
                                 downloadPdf(pdf.url, pdf.name);
                             });
-                            const listItem = document.createElement('li');
-                            listItem.appendChild(downloadButton);
-                            menuList.appendChild(listItem);
+                            menuItem.appendChild(link);
+                            menuItem.appendChild(downloadButton);
+                            menuList.appendChild(menuItem);
                         });
                     } else {
-                        menuList.innerHTML = '<li>No menus uploaded.</li>';
+                        menuList.innerHTML = '<p>No menus uploaded.</p>';
                     }
                 } else {
                     document.getElementById('menu-content').innerHTML = '<p>No client found.</p>';

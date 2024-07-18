@@ -168,30 +168,3 @@ if (document.querySelector('.nav-login')) {
         }
     });
 }
-// Asegúrate de que el elemento del DOM esté disponible
-document.addEventListener('DOMContentLoaded', () => {
-    const menuContent = document.getElementById('menu-content');
-  
-    if (!menuContent) {
-      console.error('menuContent is not defined');
-      return;
-    }
-  
-    // Suponiendo que tienes una función para obtener el contenido del menú
-    fetchMenuContent().then(menuData => {
-      displayMenu(menuData, menuContent);
-    }).catch(error => {
-      console.error('Error fetching menu content:', error);
-    });
-  });
-  
-  function displayMenu(menuData, menuContent) {
-    menuContent.innerHTML = ''; // Limpiar contenido previo
-  
-    menuData.forEach(item => {
-      const menuItem = document.createElement('div');
-      menuItem.textContent = item.name; // Ajusta según los datos del menú
-      menuContent.appendChild(menuItem);
-    });
-  }
-  

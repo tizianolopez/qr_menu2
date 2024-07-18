@@ -11,12 +11,11 @@
     <h3>Your Menus:</h3>
     <ul class="pdf-list"></ul>
 
-    <script src="bundle.js"></script>
-    <script>
-        import { initializeApp } from 'firebase/app';
-        import { getFirestore, doc, getDoc } from 'firebase/firestore';
-        import { getStorage, ref, getDownloadURL, listAll } from 'firebase/storage';
+    <script src="https://www.gstatic.com/firebasejs/9.1.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.1.0/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.1.0/firebase-storage.js"></script>
 
+    <script>
         const firebaseConfig = {
             apiKey: "AIzaSyBFU2ZnJ1oh-7R5QkFEmoUOevQcTQ0mZ_w",
             authDomain: "qr-menu-383cd.firebaseapp.com",
@@ -26,10 +25,10 @@
             appId: "1:98382457208:web:d7d5acb86901141134008d"
         };
 
-        initializeApp(firebaseConfig);
-
-        const db = getFirestore();
-        const storage = getStorage();
+        firebase.initializeApp(firebaseConfig);
+        
+        const db = firebase.firestore();
+        const storage = firebase.storage();
 
         const clientNameElement = document.getElementById('client-name');
         const pdfListElement = document.querySelector('.pdf-list');
@@ -40,9 +39,9 @@
         }
 
         async function loadClientData(clientId) {
-            const userDocRef = doc(db, 'clients', clientId);
-            const docSnapshot = await getDoc(userDocRef);
-            if (docSnapshot.exists()) {
+            const userDocRef = db.collection('clients').doc(clientId);
+            const docSnapshot = await userDocRef.get();
+            if (docSnapshot.exists) {
                 const userData = docSnapshot.data();
                 clientNameElement.textContent = userData.name;
                 listUploadedPDFs(clientId);
@@ -53,11 +52,11 @@
 
         // List uploaded PDFs for the user
         function listUploadedPDFs(userId) {
-            const userStorageRef = ref(storage, `pdfs/${userId}`);
-            listAll(userStorageRef).then((res) => {
+            const userStorageRef = storage.ref(`pdfs/${userId}`);
+            userStorageRef.listAll().then((res) => {
                 pdfListElement.innerHTML = '';
                 res.items.forEach((itemRef) => {
-                    getDownloadURL(itemRef).then((url) => {
+                    itemRef.getDownloadURL().then((url) => {
                         const listItem = document.createElement('li');
                         const link = document.createElement('a');
                         link.href = url;

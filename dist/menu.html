@@ -8,19 +8,13 @@
         body {
             font-family: Arial, sans-serif;
             margin: 20px;
-            background-color: #f4f4f4;
         }
         h1 {
             text-align: center;
-            color: #333;
         }
         .menu-container {
             max-width: 600px;
             margin: 0 auto;
-            padding: 20px;
-            background-color: #fff;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
         .menu-item {
             margin-bottom: 10px;
@@ -37,56 +31,49 @@
             color: #007bff;
             font-weight: bold;
         }
-        .menu-item a:hover {
-            text-decoration: underline;
-        }
-        .error-message {
-            color: red;
-            text-align: center;
-        }
     </style>
 </head>
 <body>
     <div class="menu-container">
         <h1>Client Menu</h1>
-        <div id="menu-content">
-            <!-- Content will be inserted here -->
-        </div>
+        <div id="menu-content"></div>
     </div>
 
-    <!-- Firebase Scripts (Global CDN) -->
-    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-storage-compat.js"></script>
+    <!-- Firebase Scripts (Modular SDK) -->
+    <script type="module">
+        // Import Firebase modules
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js';
+        import { getFirestore, doc, getDoc } from 'https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js';
+        import { getStorage, ref, listAll, getDownloadURL } from 'https://www.gstatic.com/firebasejs/9.6.10/firebase-storage.js';
+        import { getAuth } from 'https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js';
 
-    <script>
-        // Firebase Configuration
+        // Your Firebase configuration
         const firebaseConfig = {
-    apiKey: "AIzaSyBFU2ZnJ1oh-7R5QkFEmoUOevQcTQ0mZ_w",
-    authDomain: "qr-menu-383cd.firebaseapp.com",
-    projectId: "qr-menu-383cd",
-    storageBucket: "qr-menu-383cd.appspot.com",
-    messagingSenderId: "98382457208",
-    appId: "1:98382457208:web:d7d5acb86901141134008d"
-};
+            apiKey: "AIzaSyBFU2ZnJ1oh-7R5QkFEmoUOevQcTQ0mZ_w",
+            authDomain: "qr-menu-383cd.firebaseapp.com",
+            projectId: "qr-menu-383cd",
+            storageBucket: "qr-menu-383cd.appspot.com",
+            messagingSenderId: "98382457208",
+            appId: "1:98382457208:web:d7d5acb86901141134008d"
+        };
 
         // Initialize Firebase
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.firestore();
-        const storage = firebase.storage();
-        const auth = firebase.auth();
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const storage = getStorage(app);
+        const auth = getAuth(app);
 
-        // Get client ID from URL
+        // Get the clientId from the URL
         const urlParams = new URLSearchParams(window.location.search);
         const clientId = urlParams.get('clientId');
 
         // Function to list uploaded PDFs
         function listUploadedPDFs(clientId, pdfListElement) {
-            const userStorageRef = storage.ref(`pdfs/${clientId}`);
-            userStorageRef.listAll().then((res) => {
+            const userStorageRef = ref(storage, `pdfs/${clientId}`);
+            listAll(userStorageRef).then((res) => {
                 pdfListElement.innerHTML = '';
                 res.items.forEach((itemRef) => {
-                    itemRef.getDownloadURL().then((url) => {
+                    getDownloadURL(itemRef).then((url) => {
                         const listItem = document.createElement('div');
                         listItem.classList.add('menu-item');
                         const link = document.createElement('a');
@@ -104,13 +91,13 @@
 
         // Fetch client data and display menu
         function fetchClientData(clientId) {
-            const clientDocRef = db.collection('clients').doc(clientId);
-            clientDocRef.get().then((doc) => {
-                if (doc.exists) {
+            const clientDocRef = doc(db, 'clients', clientId);
+            getDoc(clientDocRef).then((doc) => {
+                if (doc.exists()) {
                     const data = doc.data();
                     const menuContent = document.getElementById('menu-content');
                     menuContent.innerHTML = `
-                        <h2>Welcome ${data.name}</h2>
+                        <h2>Bienvenido a ${data.name}</h2>
                         <p>Email: ${data.email}</p>
                         <h3>Menus:</h3>
                         <div id="menu-list"></div>
@@ -118,20 +105,20 @@
                     const menuList = document.getElementById('menu-list');
                     listUploadedPDFs(clientId, menuList); // List PDFs for this client
                 } else {
-                    document.getElementById('menu-content').innerHTML = '<p class="error-message">No client found.</p>';
+                    document.getElementById('menu-content').innerHTML = '<p>No client found.</p>';
                 }
             }).catch((error) => {
                 console.error('Error fetching client document:', error);
-                document.getElementById('menu-content').innerHTML = '<p class="error-message">Error loading menu.</p>';
+                document.getElementById('menu-content').innerHTML = '<p>Error loading menu.</p>';
             });
         }
 
-        // Initialize content
+        // Fetch client data when DOM is ready
         document.addEventListener('DOMContentLoaded', () => {
             if (clientId) {
                 fetchClientData(clientId);
             } else {
-                document.getElementById('menu-content').innerHTML = '<p class="error-message">Invalid client ID.</p>';
+                document.getElementById('menu-content').innerHTML = '<p>Invalid client ID.</p>';
             }
         });
     </script>

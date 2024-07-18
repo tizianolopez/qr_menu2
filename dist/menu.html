@@ -32,6 +32,17 @@
             color: #007bff;
             font-weight: bold;
         }
+        .download-button {
+            padding: 8px 16px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .download-button:hover {
+            background-color: #0056b3;
+        }
     </style>
 </head>
 <body>
@@ -73,33 +84,15 @@
                     const menuContent = document.getElementById('menu-content');
                     menuContent.innerHTML = `
                         <h2>Welcome, ${data.name}</h2>
-                        <p>Email: ${data.email}</p>
-                        <h3>Your QR Code:</h3>
-                        <img src="${data.qrCodeUrl}" alt="QR Code">
-                        <h3>Menus:</h3>
-                        <div id="menu-list"></div>
+                        <button class="download-button" id="downloadButton">Download Menu</button>
                     `;
-                    const menuList = document.getElementById('menu-list');
-                    if (data.pdfs && data.pdfs.length > 0) {
-                        data.pdfs.forEach((pdf) => {
-                            const menuItem = document.createElement('div');
-                            menuItem.classList.add('menu-item');
-                            const link = document.createElement('a');
-                            link.href = pdf.url;
-                            link.textContent = pdf.name;
-                            link.setAttribute('target', '_blank'); // Open link in new tab
-                            const downloadButton = document.createElement('button');
-                            downloadButton.textContent = 'Download';
-                            downloadButton.addEventListener('click', () => {
-                                downloadPdf(pdf.url, pdf.name);
-                            });
-                            menuItem.appendChild(link);
-                            menuItem.appendChild(downloadButton);
-                            menuList.appendChild(menuItem);
-                        });
-                    } else {
-                        menuList.innerHTML = '<p>No menus uploaded.</p>';
-                    }
+
+                    // Handle download button click
+                    const downloadButton = document.getElementById('downloadButton');
+                    downloadButton.addEventListener('click', () => {
+                        downloadPdf(data.pdfUrl, 'menu.pdf');
+                    });
+
                 } else {
                     document.getElementById('menu-content').innerHTML = '<p>No client found.</p>';
                 }

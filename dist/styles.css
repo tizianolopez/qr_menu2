@@ -128,10 +128,7 @@ form button {
     margin-top: 3em;
 
 }
-.login button{
-    margin-top: 9em;
 
-}
 form button:hover {
     background: linear-gradient(45deg, rgba(39, 57, 190, 0.79), rgba(37, 116, 252, 0.626));
 }
@@ -189,11 +186,10 @@ form button:hover {
     margin: 20px 0;
 }
 
-.separator::before,
-.separator::after {
-    content: '';
-    flex: 1;
-    border-bottom: 1px solid #ddd;
+
+.separator {
+    padding: 0.2em 2em;
+    border-bottom: 1px solid #000000;
 }
 
 .separator:not(:empty)::before {
@@ -212,7 +208,7 @@ form button:hover {
     font-size: 16px;
     border-radius: 5px;
     cursor: pointer;
-    width: 100%;
+    width: auto;
 }
 
 .google-button:hover {

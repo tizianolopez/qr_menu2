@@ -62,12 +62,12 @@ if (document.querySelector('.nav-login')) {
 
     // Show/hide forms
     navLogin.addEventListener('click', () => {
-        loginForm.style.display = 'block';
+        loginForm.style.display = 'flex';
         signupForm.style.display = 'none';
     });
 
     navSignup.addEventListener('click', () => {
-        signupForm.style.display = 'block';
+        signupForm.style.display = 'flex';
         loginForm.style.display = 'none';
     });
 

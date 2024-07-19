@@ -117,7 +117,7 @@ if (document.querySelector('.nav-login')) {
 
     // Generate a QR code URL using qrserver.com
     function generateQRCodeUrl(clientUrl) {
-        return `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(clientUrl)}`;
+        return `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(clientUrl)}`;
     }
 
     // Generate a unique URL for the client
@@ -129,51 +129,19 @@ if (document.querySelector('.nav-login')) {
     function showDashboard(user) {
         const userDocRef = doc(db, 'clients', user.uid);
         getDoc(userDocRef).then((docSnapshot) => {
-          const userData = docSnapshot.data();
-          userNameElement.textContent = userData.name;
-      
-          const qrImage = document.createElement('img');
-          qrImage.id = 'qr-image';
-          qrImage.src = userData.qrCodeUrl;
-          qrImage.alt = "QR Code";
-      
-          const qrLink = document.createElement('a');
-          qrLink.id = 'qr-download';
-          qrLink.href = userData.qrCodeUrl;
-          qrLink.download = `qr_code_${user.uid}.png`;
-          qrLink.appendChild(qrImage);
-      
-          userQrElement.innerHTML = '';
-          userQrElement.appendChild(qrLink);
-      
-          dashboard.style.display = 'block';
-          logoutButton.style.display = 'block';
-          navLogin.style.display = 'none';
-          navSignup.style.display = 'none';
-          loginForm.style.display = 'none';
-          signupForm.style.display = 'none';
-          listUploadedPDFs(user.uid, pdfListElement);
-      
-          // Añadir evento para manejar la descarga con Blob
-          qrLink.addEventListener('click', (event) => {
-            event.preventDefault();
-            fetch(userData.qrCodeUrl)
-              .then(response => response.blob())
-              .then(blob => {
-                const url = window.URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.style.display = 'none';
-                a.href = url;
-                a.download = `qr_code_${user.uid}.png`;
-                document.body.appendChild(a);
-                a.click();
-                window.URL.revokeObjectURL(url);
-              })
-              .catch(err => console.error('Error al descargar la imagen:', err));
-          });
+            const userData = docSnapshot.data();
+            userNameElement.textContent = userData.name;
+            userQrElement.src = userData.qrCodeUrl;
+            qrDownloadElement.href = userData.qrCodeUrl;
+            dashboard.style.display = 'block';
+            logoutButton.style.display = 'block';
+            navLogin.style.display = 'none';
+            navSignup.style.display = 'none';
+            loginForm.style.display = 'none';
+            signupForm.style.display = 'none';
+            listUploadedPDFs(user.uid, pdfListElement);
         });
-      }
-      
+    }
 
     // Upload PDF
     uploadPdfForm.addEventListener('submit', (e) => {

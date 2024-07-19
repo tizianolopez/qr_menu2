@@ -3,7 +3,7 @@ import QRCode from 'qrcode';
 // Firebase initialization
 import { initializeApp } from 'firebase/app';
 import { getFirestore, doc, setDoc, getDoc } from 'firebase/firestore';
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from 'firebase/auth';
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
 import { getStorage, ref, uploadBytes, listAll, getDownloadURL } from 'firebase/storage';
 
 const firebaseConfig = {
@@ -115,6 +115,19 @@ if (document.querySelector('.nav-login')) {
         });
     });
 
+    // Google login
+    const googleLoginButton = document.getElementById('google-login');
+    const provider = new GoogleAuthProvider();
+
+    googleLoginButton.addEventListener('click', () => {
+        signInWithPopup(auth, provider).then((result) => {
+            const user = result.user;
+            showDashboard(user);
+        }).catch((error) => {
+            console.log(error.message);
+        });
+    });
+
     // Generate a QR code URL using qrcode.js
     function generateQRCodeUrl(text) {
         return new Promise((resolve, reject) => {
@@ -131,7 +144,6 @@ if (document.querySelector('.nav-login')) {
             });
         });
     }
-
 
     // Generate a unique URL for the client
     function generateUniqueUrl(clientId) {

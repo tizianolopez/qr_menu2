@@ -1,0 +1,39 @@
+@import url('https://fonts.googleapis.com/css?family=Poppins:100,100i,200,200i,300,300i,400,400i,500,500i,600,600i,700,700i,800,800i,900,900i&subset=devanagari,latin-ext');
+
+body{
+    font-family: 'Poppins', sans-serif;
+	font-size: 16px;
+	line-height: 24px;
+	font-weight: 400;
+    margin: 0;
+    padding: 0;
+background-position: center;
+	background-repeat: repeat;
+	background-size: 5%;
+	background-color: #171717;
+    color: #EDEDED;
+	overflow-x: hidden;
+    transition: all 200ms linear;
+}
+
+
+
+.menu-container {
+    max-width: 600px;
+    margin: 0 auto;
+}
+.menu-item {
+    margin-bottom: 10px;
+    padding: 10px;
+    border: 1px solid #ccc;
+    background-color: #f9f9f9;
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+.menu-item a {
+    text-decoration: none;
+    color: #007bff;
+    font-weight: bold;
+}

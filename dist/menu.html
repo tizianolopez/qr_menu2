@@ -4,33 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cliente Menu</title>
+    <link rel="stylesheet" href="menu.css">
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-        }
-        h1 {
-            text-align: center;
-        }
-        .menu-container {
-            max-width: 600px;
-            margin: 0 auto;
-        }
-        .menu-item {
-            margin-bottom: 10px;
-            padding: 10px;
-            border: 1px solid #ccc;
-            background-color: #f9f9f9;
-            border-radius: 5px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-        .menu-item a {
-            text-decoration: none;
-            color: #007bff;
-            font-weight: bold;
-        }
+        
     </style>
 </head>
 <body>
@@ -71,19 +47,27 @@
         function listUploadedPDFs(clientId, pdfListElement) {
             const userStorageRef = ref(storage, `pdfs/${clientId}`);
             listAll(userStorageRef).then((res) => {
-                pdfListElement.innerHTML = '';
-                res.items.forEach((itemRef) => {
-                    getDownloadURL(itemRef).then((url) => {
-                        const listItem = document.createElement('div');
-                        listItem.classList.add('menu-item');
-                        const link = document.createElement('a');
-                        link.href = url;
-                        link.textContent = itemRef.name;
-                        link.setAttribute('target', '_blank'); // Open link in new tab
-                        listItem.appendChild(link);
-                        pdfListElement.appendChild(listItem);
+                if (res.items.length === 1) {
+                    // Only one PDF, open it directly
+                    getDownloadURL(res.items[0]).then((url) => {
+                        window.location.href = url;
                     });
-                });
+                } else {
+                    // More than one PDF, list them
+                    pdfListElement.innerHTML = '';
+                    res.items.forEach((itemRef) => {
+                        getDownloadURL(itemRef).then((url) => {
+                            const listItem = document.createElement('div');
+                            listItem.classList.add('menu-item');
+                            const link = document.createElement('a');
+                            link.href = url;
+                            link.textContent = itemRef.name;
+                            link.setAttribute('target', '_blank'); // Open link in new tab
+                            listItem.appendChild(link);
+                            pdfListElement.appendChild(listItem);
+                        });
+                    });
+                }
             }).catch((error) => {
                 console.log(error.message);
             });
@@ -97,9 +81,8 @@
                     const data = doc.data();
                     const menuContent = document.getElementById('menu-content');
                     menuContent.innerHTML = `
-                        <h2>Bienvenido a ${data.name}</h2>
-                        <p>Email: ${data.email}</p>
-                        <h3>Menus:</h3>
+                        <h1>Bienvenido a ${data.name}</h1>
+                        <h2>Menus:</h2>
                         <div id="menu-list"></div>
                     `;
                     const menuList = document.getElementById('menu-list');

@@ -93,7 +93,7 @@ if (document.querySelector('.nav-login')) {
             const clientUrl = generateUniqueUrl(user.uid); // Generar URL única
 
             const userDocRef = doc(db, 'clients', user.uid);
-            setDoc(userDocRef, { name, email, qrCodeUrl: '', clientUrl }).then(() => {
+            setDoc(userDocRef, { name, email, clientUrl }).then(() => {
                 signupForm.reset();
                 showDashboard(user);
             });

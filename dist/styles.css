@@ -76,9 +76,7 @@ form:hover {
     transform: translate(0, -7px); /* Moves the element up by 5 pixels */
     transition: transform 0.5s ease; /* Smooth transition for the transform */
 }
-.login, .signup{
-    height: 25em; /* Altura fija para ambos formularios */
-}
+
 form h2 {
     margin-bottom: 20px; /* Espacio adicional bajo el título */
 }

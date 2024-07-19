@@ -116,17 +116,36 @@ if (document.querySelector('.nav-login')) {
     });
 
     // Google login
+    // Google login
     const googleLoginButton = document.getElementById('google-login');
     const provider = new GoogleAuthProvider();
-
+    
     googleLoginButton.addEventListener('click', () => {
         signInWithPopup(auth, provider).then((result) => {
             const user = result.user;
-            showDashboard(user);
+    
+            // Check if user data exists in Firestore
+            const userDocRef = doc(db, 'clients', user.uid);
+            getDoc(userDocRef).then((docSnapshot) => {
+                if (docSnapshot.exists()) {
+                    showDashboard(user);
+                } else {
+                    // Set default data for new Google users
+                    const clientUrl = generateUniqueUrl(user.uid); // Generar URL única
+                    setDoc(userDocRef, { name: '', email: user.email, clientUrl }).then(() => {
+                        showDashboard(user);
+                    }).catch((error) => {
+                        console.error('Error setting document: ', error);
+                    });
+                }
+            }).catch((error) => {
+                console.error('Error getting document: ', error);
+            });
         }).catch((error) => {
-            console.log(error.message);
+            console.error('Error during signInWithPopup: ', error);
         });
     });
+    
 
     // Generate a QR code URL using qrcode.js
     function generateQRCodeUrl(text) {

@@ -1,8 +1,10 @@
-// Import statements and Firebase initialization
+import QRCode from 'qrcode';
+
+// Firebase initialization
 import { initializeApp } from 'firebase/app';
 import { getFirestore, doc, setDoc, getDoc } from 'firebase/firestore';
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from 'firebase/auth';
-import { getStorage, ref, uploadBytes, getDownloadURL, listAll } from 'firebase/storage';
+import { getStorage, ref, uploadBytes, listAll, getDownloadURL } from 'firebase/storage';
 
 const firebaseConfig = {
     apiKey: "AIzaSyBFU2ZnJ1oh-7R5QkFEmoUOevQcTQ0mZ_w",
@@ -20,7 +22,6 @@ const db = getFirestore();
 const auth = getAuth();
 const storage = getStorage();
 
-// Common function to list uploaded PDFs for the user
 function listUploadedPDFs(userId, pdfListElement) {
     const userStorageRef = ref(storage, `pdfs/${userId}`);
     listAll(userStorageRef).then((res) => {
@@ -90,10 +91,9 @@ if (document.querySelector('.nav-login')) {
         createUserWithEmailAndPassword(auth, email, password).then((userCredential) => {
             const user = userCredential.user;
             const clientUrl = generateUniqueUrl(user.uid); // Generar URL única
-            const qrCodeUrl = generateQRCodeUrl(clientUrl); // Generar URL del QR Code
 
             const userDocRef = doc(db, 'clients', user.uid);
-            setDoc(userDocRef, { name, email, qrCodeUrl, clientUrl }).then(() => {
+            setDoc(userDocRef, { name, email, qrCodeUrl: '', clientUrl }).then(() => {
                 signupForm.reset();
                 showDashboard(user);
             });
@@ -115,10 +115,23 @@ if (document.querySelector('.nav-login')) {
         });
     });
 
-    // Generate a QR code URL using qrserver.com
-    function generateQRCodeUrl(clientUrl) {
-        return `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(clientUrl)}`;
+    // Generate a QR code URL using qrcode.js
+    function generateQRCodeUrl(text) {
+        return new Promise((resolve, reject) => {
+            QRCode.toDataURL(text, {
+                errorCorrectionLevel: 'M',
+                width: 200,
+                margin: 0
+            }, (err, url) => {
+                if (err) {
+                    reject(err);
+                    return;
+                }
+                resolve(url);
+            });
+        });
     }
+
 
     // Generate a unique URL for the client
     function generateUniqueUrl(clientId) {
@@ -126,21 +139,25 @@ if (document.querySelector('.nav-login')) {
     }
 
     // Show dashboard with user details
-    function showDashboard(user) {
+    async function showDashboard(user) {
         const userDocRef = doc(db, 'clients', user.uid);
-        getDoc(userDocRef).then((docSnapshot) => {
-            const userData = docSnapshot.data();
-            userNameElement.textContent = userData.name;
-            userQrElement.src = userData.qrCodeUrl;
-            qrDownloadElement.href = userData.qrCodeUrl;
-            dashboard.style.display = 'block';
-            logoutButton.style.display = 'block';
-            navLogin.style.display = 'none';
-            navSignup.style.display = 'none';
-            loginForm.style.display = 'none';
-            signupForm.style.display = 'none';
-            listUploadedPDFs(user.uid, pdfListElement);
-        });
+        const docSnapshot = await getDoc(userDocRef);
+        const userData = docSnapshot.data();
+        userNameElement.textContent = userData.name;
+
+        // Generate QR code URL and set it to the image and download link
+        const qrCodeUrl = await generateQRCodeUrl(userData.clientUrl);
+        userQrElement.src = qrCodeUrl;
+        qrDownloadElement.href = qrCodeUrl;
+        qrDownloadElement.download = 'qr-code.png';
+
+        dashboard.style.display = 'block';
+        logoutButton.style.display = 'block';
+        navLogin.style.display = 'none';
+        navSignup.style.display = 'none';
+        loginForm.style.display = 'none';
+        signupForm.style.display = 'none';
+        listUploadedPDFs(user.uid, pdfListElement);
     }
 
     // Upload PDF

@@ -25,6 +25,11 @@ h1, h2, h3 {
     text-align: center;
     color: #444;
 }
+
+h6, h3{
+    text-align: center;
+    margin: 0;
+}
 h2{
     margin-bottom: 40px;
 
@@ -144,6 +149,7 @@ form button:hover {
 }
 
 .upload-pdf {
+    margin-top: 4em;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -169,10 +175,8 @@ form button:hover {
     display: flex;
     justify-content: center;
     align-items: center;
-    margin: 4em auto;
+    margin: 3em auto;
 }
 
 #qr-code img {
-    max-width: 100%;
-    height: auto;
 }

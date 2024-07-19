@@ -1,3 +1,4 @@
+// Import statements and Firebase initialization
 import { initializeApp } from 'firebase/app';
 import { getFirestore, doc, setDoc, getDoc } from 'firebase/firestore';
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from 'firebase/auth';
@@ -54,7 +55,8 @@ if (document.querySelector('.nav-login')) {
 
     // Display elements
     const userNameElement = document.getElementById('user-name');
-    const userQrElement = document.getElementById('qr-code');
+    const userQrElement = document.getElementById('qr-image');
+    const qrDownloadElement = document.getElementById('qr-download');
     const pdfListElement = document.querySelector('.pdf-list');
 
     // Show/hide forms
@@ -129,7 +131,8 @@ if (document.querySelector('.nav-login')) {
         getDoc(userDocRef).then((docSnapshot) => {
             const userData = docSnapshot.data();
             userNameElement.textContent = userData.name;
-            userQrElement.innerHTML = `<img src="${userData.qrCodeUrl}" alt="QR Code">`;
+            userQrElement.src = userData.qrCodeUrl;
+            qrDownloadElement.href = userData.qrCodeUrl;
             dashboard.style.display = 'block';
             logoutButton.style.display = 'block';
             navLogin.style.display = 'none';

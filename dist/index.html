@@ -15,6 +15,9 @@
         <button class="logout" style="display:none;">Cerrar sesión</button>
     </nav>
 
+    <h1>QR Menu Dashboard</h1>
+    <h2>Añade codigos QR a tu restaurante</h2>  
+    
     <!-- Sign Up Form -->
     <form class="signup" style="display:none;">
         <h2>Registrarse</h2>
@@ -29,7 +32,7 @@
     </form>
 
     <!-- Log In Form -->
-    <form class="login">
+    <form class="login" style="display:none;">
         <h2>Iniciar Sesión</h2>
 
         <label for="loginEmail">correo</label>
@@ -39,13 +42,16 @@
         <button type="submit">Iniciar sesión</button>
     </form>
     
-    <h1>QR Menu Dashboard</h1>
-
+    
     <!-- Dashboard -->
     <div class="dashboard" style="display:none;">
         <h2>Bienvenido, <span id="user-name"></span></h2>
         <h3>Tu codigo QR :</h3>
-        <div id="qr-code"></div>
+        <div id="qr-code">
+            <a id="qr-download" href="#" download="qr-code.png">
+                <img id="qr-image" src="" alt="QR Code">
+            </a>
+        </div>
 
         <!-- Form to upload PDF -->
         <form class="upload-pdf">

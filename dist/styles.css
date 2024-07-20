@@ -72,6 +72,8 @@ form {
     transition: transform 30s ease; /* Ensures smooth transition for both hover and de-hover */
 
 }
+
+
 form:hover {
     transform: translate(0, -7px); /* Moves the element up by 5 pixels */
     transition: transform 0.5s ease; /* Smooth transition for the transform */
@@ -204,39 +206,100 @@ form button:hover {
     display: none;
 }
 
-.google-button {
-    background-color: #4285F4;
-    color: white;
-    border: none;
-    padding: 10px 20px;
-    font-size: 16px;
-    border-radius: 5px;
+form .google-button {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    
+    background: none;
+    background-color: #ffffff;
+    color: rgb(0, 0, 0);
+    border: 1px solid black;
+    border-radius: 3em;
     cursor: pointer;
-    width: auto;
+    width: 100%;
+    max-width: 250px;
 }
 
-.google-button:hover {
-    background-color: #357ae8;
+form  .google-button:hover {
+    background: none;
+    background-color: #dbdbdb;
 }
 
+.google-button .google-icon {
+    width: 24px;
+    height: 24px;
+    margin-right: 10px;
+}
 
+.password-strength-container {
+    position: relative;
+    width: 100%;
+    margin-top: 10px;
+}
+
+.password-strength-bar {
+    width: 100%;
+    height: 10px;
+    background-color: #e0e0e0;
+    border-radius: 5px;
+    overflow: hidden;
+    position: relative;
+}
+
+.password-strength-fill {
+    height: 100%;
+    width: 0;
+    transition: width 0.3s, background-color 0.3s;
+    border-radius: 5px;
+}
+
+.password-strength-bar::before,
+.password-strength-bar::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    height: 100%;
+    width: 4px;
+    background-color: #f5f5f5;
+}
+
+.password-strength-bar::before {
+    left: 33%;
+}
+
+.password-strength-bar::after {
+    left: 66%;
+}
 
 .password-strength-text {
     margin-top: 5px;
-    font-size: 14px;
-    color: #fff;
-    padding: 5px;
-    border-radius: 5px;
+    font-size: 12px;
+    color: #666;
+    text-align: right;
+}
+ 
+
+
+.weak {
+    background-color: #d22c2c;
 }
 
-.password-strength-text.weak {
-    background-color: #ff4d4d;
+.medium {
+    background-color: #f8a61b;
 }
 
-.password-strength-text.medium {
-    background-color: #ffcc00;
+.strong {
+    background-color: #009c75;
 }
 
-.password-strength-text.strong {
-    background-color: #66cc66;
+.very-strong {
+    background-color: #006b10;
+}
+
+#password-strength-text {
+    margin-top: 5px;
+    margin-right: 5px;
+    font-size: 12px;
+    color: #666;
 }

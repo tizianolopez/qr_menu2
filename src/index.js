@@ -53,6 +53,10 @@ if (document.querySelector('.nav-login')) {
     const loginForm = document.querySelector('.login');
     const signupErrorElement = document.getElementById('signup-error');
     const loginErrorElement = document.getElementById('login-error');
+    const passwordInput = document.getElementById('password');
+    const passwordStrengthFill = document.getElementById('password-strength-fill');
+    const passwordStrengthText = document.getElementById('password-strength-text');
+
     const uploadPdfForm = document.querySelector('.upload-pdf');
     const dashboard = document.querySelector('.dashboard');
 
@@ -84,6 +88,36 @@ if (document.querySelector('.nav-login')) {
         });
     });
 
+
+
+    // Function to update password strength bar and text
+    function updatePasswordStrengthBar(password) {
+        const length = password.length;
+        let strengthClass = 'weak';
+        let widthPercentage = (length / 9) * 100;
+        let strengthText = 'Muy débil';
+
+        if (length >= 9) {
+            strengthClass = 'very-strong';
+            strengthText = 'Muy Segura';
+        } else if (length >= 6) {
+            strengthClass = 'strong';
+            strengthText = 'Segura';
+        } else if (length >= 3) {
+            strengthClass = 'medium';
+            strengthText = 'Débil';
+        }
+
+        passwordStrengthFill.className = 'password-strength-fill ' + strengthClass;
+        passwordStrengthFill.style.width = `${widthPercentage}%`;
+        passwordStrengthText.textContent = strengthText;
+    }
+
+    // Event listener for password input
+    passwordInput.addEventListener('input', (e) => {
+        const password = e.target.value;
+        updatePasswordStrengthBar(password);
+    });
 
     // Function to format Firebase error messages
     function formatFirebaseErrorMessage(error) {
@@ -138,6 +172,9 @@ if (document.querySelector('.nav-login')) {
                     .then(() => {
                         signupForm.reset();
                         signupErrorElement.style.display = 'none';
+                        passwordStrengthFill.className = 'password-strength-fill';
+                        passwordStrengthFill.style.width = '0%';
+                        passwordStrengthText.textContent = '';
                         showDashboard(user);
                     })
                     .catch((error) => {
@@ -152,6 +189,7 @@ if (document.querySelector('.nav-login')) {
                 console.log(error.message);
             });
     });
+
 
     // Log in
     loginForm.addEventListener('submit', (e) => {

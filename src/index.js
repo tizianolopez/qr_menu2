@@ -51,6 +51,8 @@ if (document.querySelector('.nav-login')) {
     // Forms
     const signupForm = document.querySelector('.signup');
     const loginForm = document.querySelector('.login');
+    const signupErrorElement = document.getElementById('signup-error');
+    const loginErrorElement = document.getElementById('login-error');
     const uploadPdfForm = document.querySelector('.upload-pdf');
     const dashboard = document.querySelector('.dashboard');
 
@@ -82,24 +84,73 @@ if (document.querySelector('.nav-login')) {
         });
     });
 
+
+    // Function to format Firebase error messages
+    function formatFirebaseErrorMessage(error) {
+        let errorMessage = 'Ocurrió un error inesperado. Inténtalo de nuevo.';
+
+        switch (error.code) {
+            case 'auth/invalid-credential':
+                errorMessage = 'El correo o la contraseña son incorrectos.';
+                break;
+            case 'auth/email-already-in-use':
+                errorMessage = 'El correo ya está registrado.';
+                break;
+            case 'auth/invalid-email':
+                errorMessage = 'El correo no es válido.';
+                break;
+            case 'auth/operation-not-allowed':
+                errorMessage = 'Operación no permitida.';
+                break;
+            case 'auth/weak-password':
+                errorMessage = 'La contraseña es muy débil.';
+                break;
+            case 'auth/user-disabled':
+                errorMessage = 'El usuario ha sido deshabilitado.';
+                break;
+            case 'auth/user-not-found':
+                errorMessage = 'El correo no se encuentra registrado.';
+                break;
+            case 'auth/wrong-password':
+                errorMessage = 'La contraseña es incorrecta.';
+                break;
+            default:
+                errorMessage = error.message.replace('Firebase: ', '');
+        }
+
+        return errorMessage;
+    }
+
     // Sign up
     signupForm.addEventListener('submit', (e) => {
         e.preventDefault();
         const name = signupForm.name.value;
         const email = signupForm.email.value;
         const password = signupForm.password.value;
-        createUserWithEmailAndPassword(auth, email, password).then((userCredential) => {
-            const user = userCredential.user;
-            const clientUrl = generateUniqueUrl(user.uid); // Generar URL única
 
-            const userDocRef = doc(db, 'clients', user.uid);
-            setDoc(userDocRef, { name, email, clientUrl }).then(() => {
-                signupForm.reset();
-                showDashboard(user);
+        createUserWithEmailAndPassword(auth, email, password)
+            .then((userCredential) => {
+                const user = userCredential.user;
+                const clientUrl = generateUniqueUrl(user.uid);
+
+                const userDocRef = doc(db, 'clients', user.uid);
+                setDoc(userDocRef, { name, email, clientUrl })
+                    .then(() => {
+                        signupForm.reset();
+                        signupErrorElement.style.display = 'none';
+                        showDashboard(user);
+                    })
+                    .catch((error) => {
+                        signupErrorElement.textContent = 'Error al guardar los datos del usuario.';
+                        signupErrorElement.style.display = 'block';
+                        console.log(error.message);
+                    });
+            })
+            .catch((error) => {
+                signupErrorElement.textContent = formatFirebaseErrorMessage(error);
+                signupErrorElement.style.display = 'block';
+                console.log(error.message);
             });
-        }).catch((error) => {
-            console.log(error.message);
-        });
     });
 
     // Log in
@@ -107,12 +158,18 @@ if (document.querySelector('.nav-login')) {
         e.preventDefault();
         const email = loginForm.loginEmail.value;
         const password = loginForm.loginPassword.value;
-        signInWithEmailAndPassword(auth, email, password).then((userCredential) => {
-            const user = userCredential.user;
-            showDashboard(user);
-        }).catch((error) => {
-            console.log(error.message);
-        });
+
+        signInWithEmailAndPassword(auth, email, password)
+            .then((userCredential) => {
+                const user = userCredential.user;
+                loginErrorElement.style.display = 'none';
+                showDashboard(user);
+            })
+            .catch((error) => {
+                loginErrorElement.textContent = formatFirebaseErrorMessage(error);
+                loginErrorElement.style.display = 'block';
+                console.log(error.message);
+            });
     });
 
     // Google login

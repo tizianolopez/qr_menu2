@@ -28,7 +28,10 @@
         <input type="email" id="email" name="email" required>
         <label for="password">contraseña</label>
         <input type="password" id="password" name="password" required>
+        <p id="password-strength-text" class="password-strength-text" style="display:none;"></p>
+
         <button type="submit">Registrarse</button>
+        <p class="error-message" id="signup-error" style="display:none;"></p>
     </form>
 
     <!-- Log In Form -->
@@ -40,13 +43,15 @@
         <label for="loginPassword">contraseña</label>
         <input type="password" id="loginPassword" name="password" required>
         <button type="submit">Iniciar sesión</button>
-        
+        <p class="error-message" id="login-error" style="display:none;"></p>
+
         <div class="separator">
             <span>o sino</span>
         </div>
 
         <button type="button" id="google-login" class="google-button">Google</button>
     </form>
+
     
     
     <!-- Dashboard -->

@@ -197,6 +197,12 @@ form button:hover {
 .separator:not(:empty)::after {
     margin-left: .25em;
 }
+.error-message {
+    color: red;
+    font-size: 14px;
+    margin-top: 10px;
+    display: none;
+}
 
 .google-button {
     background-color: #4285F4;
@@ -211,4 +217,26 @@ form button:hover {
 
 .google-button:hover {
     background-color: #357ae8;
+}
+
+
+
+.password-strength-text {
+    margin-top: 5px;
+    font-size: 14px;
+    color: #fff;
+    padding: 5px;
+    border-radius: 5px;
+}
+
+.password-strength-text.weak {
+    background-color: #ff4d4d;
+}
+
+.password-strength-text.medium {
+    background-color: #ffcc00;
+}
+
+.password-strength-text.strong {
+    background-color: #66cc66;
 }

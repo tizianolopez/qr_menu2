@@ -1,0 +1,9 @@
+{
+  "projects": {
+    "default": "unesdi-qr",
+    "Unesdi-qr": "unesdi-qr"
+  },
+  "targets": {},
+  "etags": {},
+  "dataconnectEmulatorConfig": {}
+}

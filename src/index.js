@@ -6,14 +6,15 @@ import { getFirestore, doc, setDoc, getDoc } from 'firebase/firestore';
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
 import { getStorage, ref, uploadBytes, listAll, getDownloadURL } from 'firebase/storage';
 
+// Your web app's Firebase configuration
 const firebaseConfig = {
-    apiKey: "AIzaSyBFU2ZnJ1oh-7R5QkFEmoUOevQcTQ0mZ_w",
-    authDomain: "qr-menu-383cd.firebaseapp.com",
-    projectId: "qr-menu-383cd",
-    storageBucket: "qr-menu-383cd.appspot.com",
-    messagingSenderId: "98382457208",
-    appId: "1:98382457208:web:d7d5acb86901141134008d"
-};
+    apiKey: "AIzaSyAzvYfIth4QmZ75P6NovuRujkWMfa6n2_s",
+    authDomain: "unesdi-qr.firebaseapp.com",
+    projectId: "unesdi-qr",
+    storageBucket: "unesdi-qr.appspot.com",
+    messagingSenderId: "201042524473",
+    appId: "1:201042524473:web:60e3c2f7bcfe9a130b50e8"
+  };
 
 initializeApp(firebaseConfig);
 
@@ -254,10 +255,11 @@ if (document.querySelector('.nav-login')) {
         });
     }
 
-    // Generate a unique URL for the client
-    function generateUniqueUrl(clientId) {
-        return `https://tizianolopez.github.io/qr_menu2/dist/menu?clientId=${clientId}`;
-    }
+   // Generate a unique URL for the client
+function generateUniqueUrl(clientId) {
+    return `https://unesdi-qr.web.app/menu.html?clientId=${clientId}`;
+}
+
 
     // Show dashboard with user details
     async function showDashboard(user) {

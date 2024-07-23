@@ -223,8 +223,9 @@ if (document.querySelector('.nav-login')) {
                 if (docSnapshot.exists()) {
                 } else {
                     // Set default data for new Google users
+                    const name = "  ";
                     const clientUrl = generateUniqueUrl(user.uid); // Generar URL única
-                    setDoc(userDocRef, { name: ' ', email: user.email, clientUrl }).then(() => {
+                    setDoc(userDocRef, { name: name, email: user.email, clientUrl }).then(() => {
                     }).catch((error) => {
                         console.error('Error setting document: ', error);
                     });

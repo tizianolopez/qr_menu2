@@ -3807,7 +3807,10 @@
 
 			#banner {
 				min-height: 0;
+				/*
+				Comentario: NICO, Cambio de altura del banner
 				height: auto !important;
+				*/
 				padding: 6rem 2rem 4rem 2rem;
 			}
 

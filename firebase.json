@@ -8,6 +8,10 @@
     ],
     "rewrites": [
       {
+        "source": "/dashboard.html",
+        "destination": "/dashboard.html"
+      },
+      {
         "source": "/menu.html",
         "destination": "/menu.html"
       },

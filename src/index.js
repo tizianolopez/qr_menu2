@@ -175,7 +175,6 @@ if (document.querySelector('.nav-login')) {
                         passwordStrengthFill.className = 'password-strength-fill';
                         passwordStrengthFill.style.width = '0%';
                         passwordStrengthText.textContent = '';
-                        showDashboard(user);
                     })
                     .catch((error) => {
                         signupErrorElement.textContent = 'Error al guardar los datos del usuario.';
@@ -199,9 +198,7 @@ if (document.querySelector('.nav-login')) {
 
         signInWithEmailAndPassword(auth, email, password)
             .then((userCredential) => {
-                const user = userCredential.user;
                 loginErrorElement.style.display = 'none';
-                showDashboard(user);
             })
             .catch((error) => {
                 loginErrorElement.textContent = formatFirebaseErrorMessage(error);
@@ -223,12 +220,10 @@ if (document.querySelector('.nav-login')) {
             const userDocRef = doc(db, 'clients', user.uid);
             getDoc(userDocRef).then((docSnapshot) => {
                 if (docSnapshot.exists()) {
-                    showDashboard(user);
                 } else {
                     // Set default data for new Google users
                     const clientUrl = generateUniqueUrl(user.uid); // Generar URL única
                     setDoc(userDocRef, { name: '', email: user.email, clientUrl }).then(() => {
-                        showDashboard(user);
                     }).catch((error) => {
                         console.error('Error setting document: ', error);
                     });

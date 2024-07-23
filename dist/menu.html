@@ -40,7 +40,7 @@
         const clientId = urlParams.get('clientId');
 
         // Function to list uploaded PDFs
-        function listUploadedPDFs(clientId, pdfListElement) {
+        function listUploadedPDFs(clientId, clientName) {
             const userStorageRef = ref(storage, `pdfs/${clientId}`);
             listAll(userStorageRef).then((res) => {
                 if (res.items.length === 1) {
@@ -48,9 +48,15 @@
                     getDownloadURL(res.items[0]).then((url) => {
                         window.location.href = url;
                     });
-                } else {
+                } else if (res.items.length > 1) {
                     // More than one PDF, list them
-                    pdfListElement.innerHTML = '';
+                    const menuContent = document.getElementById('menu-content');
+                    menuContent.innerHTML = `
+                        <h1>${clientName}</h1>
+                        <h2>Selecciona una carta</h2>
+                        <div id="menu-list"></div>
+                    `;
+                    const menuList = document.getElementById('menu-list');
                     res.items.forEach((itemRef) => {
                         getDownloadURL(itemRef).then((url) => {
                             const listItem = document.createElement('div');
@@ -60,12 +66,15 @@
                             link.setAttribute('target', '_blank'); // Open link in new tab
                             link.innerHTML = itemRef.name;
                             listItem.appendChild(link);
-                            pdfListElement.appendChild(listItem);
+                            menuList.appendChild(listItem);
                         });
                     });
+                } else {
+                    document.getElementById('menu-content').innerHTML = '<p>No hay cartas disponibles.</p>';
                 }
             }).catch((error) => {
                 console.log(error.message);
+                document.getElementById('menu-content').innerHTML = '<p>Error al cargar las cartas.</p>';
             });
         }
 
@@ -75,20 +84,13 @@
             getDoc(clientDocRef).then((doc) => {
                 if (doc.exists()) {
                     const data = doc.data();
-                    const menuContent = document.getElementById('menu-content');
-                    menuContent.innerHTML = `
-                        <h1>${data.name}</h1>
-                        <h2>Selecciona una carta</h2>
-                        <div id="menu-list"></div>
-                    `;
-                    const menuList = document.getElementById('menu-list');
-                    listUploadedPDFs(clientId, menuList); // List PDFs for this client
+                    listUploadedPDFs(clientId, data.name); // List PDFs for this client
                 } else {
-                    document.getElementById('menu-content').innerHTML = '<p>No client found.</p>';
+                    document.getElementById('menu-content').innerHTML = '<p>No se encontró el cliente.</p>';
                 }
             }).catch((error) => {
-                console.error('Error fetching client document:', error);
-                document.getElementById('menu-content').innerHTML = '<p>Error loading menu.</p>';
+                console.error('Error al obtener el documento del cliente:', error);
+                document.getElementById('menu-content').innerHTML = '<p>Error al cargar el menú.</p>';
             });
         }
 
@@ -97,7 +99,7 @@
             if (clientId) {
                 fetchClientData(clientId);
             } else {
-                document.getElementById('menu-content').innerHTML = '<p>Invalid client ID.</p>';
+                document.getElementById('menu-content').innerHTML = '<p>ID de cliente no válido.</p>';
             }
         });
     </script>

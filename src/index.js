@@ -224,7 +224,7 @@ if (document.querySelector('.nav-login')) {
                 } else {
                     // Set default data for new Google users
                     const clientUrl = generateUniqueUrl(user.uid); // Generar URL única
-                    setDoc(userDocRef, { name: '  ', email: user.email, clientUrl }).then(() => {
+                    setDoc(userDocRef, { name: 'Hola', email: user.email, clientUrl }).then(() => {
                     }).catch((error) => {
                         console.error('Error setting document: ', error);
                     });

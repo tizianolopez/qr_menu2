@@ -217,23 +217,26 @@ if (document.querySelector('.nav-login')) {
         signInWithPopup(auth, provider).then((result) => {
             const user = result.user;
     
-            // Check if user data exists in Firestore
+            // Verificar si los datos del usuario existen en Firestore
             const userDocRef = doc(db, 'clients', user.uid);
             getDoc(userDocRef).then((docSnapshot) => {
                 if (docSnapshot.exists()) {
+                    // Documento ya existe
+                    showDashboard(user);
                 } else {
-                    // Set default data for new Google users
+                    // Establecer datos predeterminados para nuevos usuarios de Google
                     const clientUrl = generateUniqueUrl(user.uid); // Generar URL única
-                    setDoc(userDocRef, { name: ' ', email: user.email, clientUrl }).then(() => {
+                    setDoc(userDocRef, { name: '', email: user.email, clientUrl }).then(() => {
+                        showDashboard(user);
                     }).catch((error) => {
-                        console.error('Error setting document: ', error);
+                        console.error('Error estableciendo el documento:', error);
                     });
                 }
             }).catch((error) => {
-                console.error('Error getting document: ', error);
+                console.error('Error obteniendo el documento:', error);
             });
         }).catch((error) => {
-            console.error('Error during signInWithPopup: ', error);
+            console.error('Error durante signInWithPopup:', error);
         });
     });
     
@@ -261,27 +264,33 @@ function generateUniqueUrl(clientId) {
 }
 
 
-    // Show dashboard with user details
-    async function showDashboard(user) {
-        const userDocRef = doc(db, 'clients', user.uid);
+    // Mostrar el dashboard con los detalles del usuario
+async function showDashboard(user) {
+    const userDocRef = doc(db, 'clients', user.uid);
+    try {
         const docSnapshot = await getDoc(userDocRef);
-        const userData = docSnapshot.data();
-        userNameElement.textContent = userData.name;
+        if (docSnapshot.exists()) {
+            const userData = docSnapshot.data();
+            userNameElement.textContent = userData.name || ''; // Mostrar vacío si el nombre está vacío
 
-        // Generate QR code URL and set it to the image and download link
-        const qrCodeUrl = await generateQRCodeUrl(userData.clientUrl);
-        userQrElement.src = qrCodeUrl;
-        qrDownloadElement.href = qrCodeUrl;
-        qrDownloadElement.download = 'qr-code.png';
+            // Generar URL del código QR y asignarla a la imagen y al enlace de descarga
+            const qrCodeUrl = await generateQRCodeUrl(userData.clientUrl);
+            userQrElement.src = qrCodeUrl;
+            qrDownloadElement.href = qrCodeUrl;
+            qrDownloadElement.download = 'qr-code.png';
 
-        dashboard.style.display = 'block';
-        logoutButton.style.display = 'block';
-        navLogin.style.display = 'none';
-        navSignup.style.display = 'none';
-        loginForm.style.display = 'none';
-        signupForm.style.display = 'none';
-        listUploadedPDFs(user.uid, pdfListElement);
+            dashboard.style.display = 'block';
+            logoutButton.style.display = 'block';
+            navLogin.style.display = 'none';
+            navSignup.style.display = 'none';
+            loginForm.style.display = 'none';
+            signupForm.style.display = 'none';
+            listUploadedPDFs(user.uid, pdfListElement);
+        } 
+    } catch (error) {
+        console.error('Error obteniendo el documento del usuario:', error);
     }
+}
 
     // Upload PDF
     uploadPdfForm.addEventListener('submit', (e) => {
